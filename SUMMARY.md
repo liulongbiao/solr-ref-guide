@@ -32,7 +32,7 @@
     * [Solr字段类型](schema/field_type/readme.md)
         * [字段类型的定义和属性](schema/field_type/definition.md)
         * [Solr内置的字段类型](schema/field_type/included.md)
-        * [处理货币和转换率](schema/field_type/currency.md)
+        * [处理货币和汇率](schema/field_type/currency.md)
         * [处理日期](schema/field_type/date.md)
         * [处理枚举字段](schema/field_type/enum.md)
         * [处理外部文件和进程](schema/field_type/file_and_process.md)
