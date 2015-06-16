@@ -7,7 +7,7 @@
     * [概览](start/overview.md)
     * [近观](start/closer.md)
     * [启动脚本参考](start/start_script.md)
-* [升级](upgrad/readme.md)
+* [升级](upgrade/readme.md)
 * [使用管理UI](adminui/readme.md)
     * [管理UI概述](adminui/overview.md)
     * [获取帮助](adminui/assistance.md)
