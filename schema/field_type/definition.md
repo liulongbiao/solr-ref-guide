@@ -64,7 +64,7 @@
 
 |  属性  |   描述    |  值  |
 |-------|:---------|------|
-| name  | fieldType 的名称。它在字段定义中以 `type`属性使用。强烈推荐名称一致地仅使用字母和下划线且不以数字开头。这不是强制的。||
+| name  | fieldType 的名称。它在字段定义中以 `type`属性使用。强烈推荐名称一致地仅使用字母数字和下划线且不以数字开头。这不是强制的。||
 | class | 用于存储和索引该类型的类的名称。注意你可以用 `solr.` 前缀包含的类名且 Solr 会自动找到应该到哪个包中搜索类，因此 `solr.TextField` 能运行。如果你在使用一个第三方类，你可能需要全限定类名。`solr.TextField` 对应的全限定类名为 `org.apache.solr.schema.TextField` ||
 | positionIncrementGap | 对多值字段，指定多个值之间的距离，它能避免虚假的短语匹配 | integer |
 | autoGeneratePhraseQueries | 针对文本字段。若为 `true`，Solr 会自动针对邻接项生成短语查询。若为 `false`，项必须以双引号括起才能被视作短语 | `true/false` |
