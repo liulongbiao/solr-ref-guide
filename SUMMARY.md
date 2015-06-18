@@ -78,7 +78,7 @@
         * [函数查询](searching/query_syntax/function.md)
         * [查询中的本地变量](searching/query_syntax/local_params.md)
         * [其他解析器](searching/query_syntax/other_parsers.md)
-    * [Faceting](searching/overview.md)
+    * [Faceting](searching/faceting.md)
     * [高亮](searching/highlight/readme.md)
         * [StandardHighlighter](searching/highlight/standard.md)
         * [FastVectorHighlighter](searching/highlight/fastvector.md)
