@@ -61,7 +61,7 @@
     * [用IndexHandlers上传数据](indexing/index_handlers.md)
     * [用带 Apache Tika 的 SolrCell 上传数据](indexing/solr_cell.md)
     * [用 DataImportHandler上传结构型数据存储的数据](indexing/DataImportHandler.md)
-    * [上传文档的部分](indexing/update_parts.md)
+    * [更新部分文档](indexing/update_parts.md)
     * [去重](indexing/de_duplication.md)
     * [建索引时侦测语言](indexing/detect_lang.md)
     * [内容流](indexing/content_streams.md)
