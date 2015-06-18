@@ -799,8 +799,8 @@ Javascript 已经集成进了 Java 7 中，其他语言你需要自己集成。
 
 |变量          |描述                       |
 |-------------|--------------------------|
-|$skipDoc     |Skip the current document; that is, do not add it to Solr. The value can be the string `true|false` .|
-|$skipRow     |Skip the current row. The document will be added with rows from other entities. The value can be the string `true|false`|
+|$skipDoc     |Skip the current document; that is, do not add it to Solr. The value can be the string `true/false` .|
+|$skipRow     |Skip the current row. The document will be added with rows from other entities. The value can be the string `true/false`|
 |$docBoost    |Boost the current document. The boost value can be a number or the toString conversion of a number.|
 |$deleteDocById|Delete a document from Solr with this ID. The value has to be the uniqueKey value of the document.|
 |$deleteDocByQuery|Delete documents from Solr using this query. The value must be a Solr Query. |
