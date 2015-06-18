@@ -160,3 +160,44 @@ $ curl 'http://localhost:8983/solr/techproducts/query?q=*:*&fl=id,_version_'
 ```
 
 ## 文档为中心的版本约束
+
+乐观并发非常有用，且运行起来非常高效，因为它给 `_version_` 字段使用了一个内部赋值的全局唯一的值。
+然而某些情况下用户可能希望配置自己的文档特定的版本字段，
+其中版本值由外部系统针对每个文档赋值，且需要 Solr 驳回对"旧"版本的文档的替换尝试。
+这时， [DocBasedVersionConstraintsProcessorFactory](http://lucene.apache.org/solr/5_2_0/solr-core/org/apache/solr/update/processor/DocBasedVersionConstraintsProcessorFactory.html)
+会很有用。
+
+DocBasedVersionConstraintsProcessorFactory 的基本用法是
+在 `solrconfig.xml` 中将它配置为
+[UpdateRequestProcessorChain](http://wiki.apache.org/solr/UpdateRequestProcessor)
+的一部分，并在你的模式中需在更新时验证版本的字段上指定你的自定义 `versionField` 的名称。
+
+```xml
+<processor class="solr.DocBasedVersionConstraintsProcessorFactory">
+  <str name="versionField">my_version_l</str>
+</processor>
+```
+
+一旦配置完，更新处理器将驳回(HTTP错误码 409)任何
+“新”文档中 `my_version_l` 字段的值小于已有文档该字段的值的更新尝试。
+
+> #### `versionField` vs `_version_`
+> 
+> Solr 用于常规乐观并发的 `_version_` 字段在更新如何在 SolrCloud 的副本中分发时也具有重要意义，
+> 且 **必须** 由 Solr 内部赋值。用户不能重定义该字段的意义，
+> 并将其指定用作 `DocBasedVersionConstraintsProcessorFactory` 配置的 `versionField`。
+
+`DocBasedVersionConstraintsProcessorFactory` 支持两个额外的可选配置参数：
+
+* `ignoreOldUpdates` - 布尔选项，默认为 false。若为 true，取之驳回 `versionField` 过低的更新，
+该更新会默默地忽略(并返回一个状态 200 给客户端)
+* `deleteVersionParam` - 一个字符串参数，可被指定以表示该处理器也应该检查根据 ID 删除命令。
+这个配置选项的值为处理器将考虑对所有根据ID删除命令都需要强制传入的一个请求参数的名称，
+且该字段必须由客户端使用以指定一个大于现有的待删除的文档的 `versionField` 的值。
+当使用该请求参数时，任何带有足够高的版本号的根据ID删除命令成功以后，
+将被内部转换为一个 添加文档命令 来替换已有文档，其中新文档内容为空，只有唯一键和 `versionField`
+来保持一个删除的版本号的记录，这样后续的添加文档命令将会失败，因为它们的"新"版本不够高。
+
+请查看 [处理器 Javadoc](http://lucene.apache.org/solr/5_2_0/solr-core/org/apache/solr/update/processor/DocBasedVersionConstraintsProcessorFactory.html)
+和 [测试配置](https://svn.apache.org/viewvc/lucene/dev/trunk/solr/core/src/test-files/solr/collection1/conf/solrconfig-externalversionconstraint.xml?view=markup)
+中更多信息和使用示例。
