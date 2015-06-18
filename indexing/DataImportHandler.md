@@ -566,4 +566,241 @@ PlainTextEntityProcessor 读取数据源中的所有内容为单个隐式字段 
 确保数据源是 `DataSource<Reader>`(`FileDataSource`、`URLDataSource`) 类型的。
 
 ## <a name="transformers"></a>转换器
+
+转换器可以操作有实体返回的文档中字段。一个转换器可以创建新的字段或者修改已有的字段。
+你需要通过在 `<entity>` 元素上添加一个包含逗号分割的属性来告诉实体你的导入操作将使用哪些转换器。
+
+```xml
+<entity name="abcde" transformer="org.apache.solr....,my.own.transformer,..." />
+```
+
+特定的转换规则随后被添加作为 `<field>` 元素的属性，如下所示。
+多个转换器以其在 `transformer` 属性所指定的顺序被应用。
+
+数据导入处理器包含多个内置的转换器。
+你也可以按 [相关 Solr Wiki](http://wiki.apache.org/solr/DIHCustomTransformer) 所述
+编写自定义的转换器。`ScriptTransformer` (下文会描述) 也提供了编写你自己的转换器的替代方法。
+
+Solr 包含以下内置转换器：
+
+|转换器名称     |用法                  |
+|-------------|---------------------|
+|[ClobTransformer](#ClobTransformer)|Used to create a String out of a Clob type in database.|
+|[DateFormatTransformer](#DateFormatTransformer)|Parse date/time instances.|
+|[HTMLStripTransformer](#HTMLStripTransformer)|Strip HTML from a field.|
+|[LogTransformer](#LogTransformer)|Used to log data to log files or a console.|
+|[NumberFormatTransformer](#NumberFormatTransformer)|Uses the NumberFormat class in java to parse a string into a number.|
+|[RegexTransformer](#RegexTransformer)|Use regular expressions to manipulate fields.|
+|[ScriptTransformer](#ScriptTransformer)|Write transformers in Javascript or any other scripting language supported by Java.|
+|[TemplateTransformer](#TemplateTransformer)|Transform a field using a template.|
+
+这些转换器会在下文描述。
+
+### <a name="ClobTransformer"></a>ClobTransformer
+
+你可以使用 ClobTransformer 从数据库中的 CLOB 创建一个字符串。
+CLOB 是字符大对象：字符数据的集合，通常存储在一个由数据库指向的独立的位置。
+详见 http://en.wikipedia.org/wiki/Character_large_object。
+下面是调用 ClobTransformer 的例子：
+
+```xml
+<entity name="e" transformer="ClobTransformer" ...>
+  <field column="hugeTextField" clob="true" />
+  ...
+</entity>
+```
+
+ClobTransformer 接收这些参数：
+
+|属性          |描述                  |
+|-------------|---------------------|
+|clob         |Boolean value to signal if ClobTransformer should process this field or not. If this attribute is omitted, then the corresponding field is not transformed.|
+|sourceColName|The source column to be used as input. If this is absent source and target are same|
+
+### <a name="DateFormatTransformer"></a>DateFormatTransformer
+
+该转换器将日期从一种格式转换为另一种格式。这在像你需要将一个字段从完整的日期/时间格式
+转换成低精度的日期格式时很有用，可用于 faceting。
+
+DateFormatTransformer 仅应用于带有 `dateTimeFormat` 属性的字段。
+其他字段不会修改。
+
+该转换器能识别以下属性：
+
+|属性          |描述                  |
+|-------------|---------------------|
+|dateTimeFormat|The format used for parsing this field. This must comply with the syntax of the Java [SimpleDateFormat](http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html) class.|
+|sourceColName|The column on which the dateFormat is to be applied. If this is absent source and target are same.|
+|locale       |The locale to use for date transformations. If not specified, the ROOT locale will be used. It must be specified as language-country. For example, en-US .|
+
+下面的代码会将日期截取为月份 "2007-JUL":
+
+```xml
+<entity name="en" pk="id" transformer="DateFormatTransformer" ... >
+  ...
+  <field column="date" sourceColName="fulldate" dateTimeFormat="yyyy-MMM"/>
+</entity>
+```
+
+### <a name="HTMLStripTransformer"></a>HTMLStripTransformer
+
+你可以使用该转换器来剥离一个字段的 HTML。如：
+
+```xml
+<entity name="e" transformer="HTMLStripTransformer" ... >
+  <field column="htmlText" stripHTML="true" />
+  ...
+</entity>
+```
+
+该转换器只有一个属性，`stripHTML`,它是一个布尔值，表示 HTMLStripTransformer 是否应该处理该字段。
+
+### <a name="LogTransformer"></a>LogTransformer
+
+你可以使用该转换器将数据记录日志到控制台或者日志文件。如：
+
+```xml
+<entity ...
+  transformer="LogTransformer"
+  logTemplate="The name is ${e.name}" logLevel="debug">
+   ....
+</entity>
+```
+
+不像其它转换器，LogTransformer 不是应用于任何字段上的，因此这些属性应用在实体本身。
+
+### <a name="NumberFormatTransformer"></a>NumberFormatTransformer
+
+该转换器从一个字符串中解析成一个数字，将其转换成特殊格式，并可选使用一个不同的地区。
+
+NumberFormatTransformer 只会应用到具有 `formatStyle` 属性的字段。
+
+该转换器识别以下属性：
+
+|属性          |描述                  |
+|-------------|---------------------|
+|formatStyle  |The format used for parsing this field. The value of the attribute must be one of (`number|percent|integer|currency` ). This uses the semantics of the Java NumberFormat class.|
+|sourceColName|The column on which the NumberFormat is to be applied. This is attribute is absent. The source column and the target column are the same.|
+|locale       |The locale to be used for parsing the strings. If this is absent, the ROOT locale is used. It must be specified as language-country. For example, en-US .|
+
+如：
+
+```xml
+<entity name="en" pk="id" transformer="NumberFormatTransformer" ...>
+  ...
+  
+  <!-- treat this field as UK pounds -->
+  
+  <field name="price_uk" column="price" formatStyle="currency" locale="en-UK"/>
+</entity>
+```
+
+### <a name="RegexTransformer"></a>RegexTransformer
+
+RegexTransformer 使用正则表达式来帮助提取或操作字段(来源)中的值。
+其实际类名为 `org.apache.solr.handler.dataimport.RegexTransformer`，
+但因为它属于默认包，因此包名可以忽略。
+
+下表描述了正则转换器所识别的属性。
+
+|属性          |描述                  |
+|-------------|---------------------|
+|regex        |The regular expression that is used to match against the column or sourceColName's value(s). If replaceWith is absent, each regex group is taken as a value and a list of values is returned.|
+|sourceColName|The column on which the regex is to be applied. If not present, then the source and target are identical.|
+|splitBy      |Used to split a string. It returns a list of values.|
+|groupNames   |A comma separated list of field column names, used where the regex contains groups and each group is to be saved to a different field. If some groups are not to be named leave a space between commas.|
+|replaceWith  |Used along with regex . It is equivalent to the method `new String(<sourceColVal>).replaceAll(<regex>, <replaceWith>)` .|
+
+下面是配置正则转换器的示例：
+
+```xml
+<entity name="foo" transformer="RegexTransformer"
+  query="select full_name, emailids from foo">
+  <field column="full_name"/>
+  <field column="firstName" regex="Mr(\w*)\b.*" sourceColName="full_name"/>
+  <field column="lastName" regex="Mr.*?\b(\w*)" sourceColName="full_name"/>
+  
+  <!-- another way of doing the same -->
+  <field column="fullName" regex="Mr(\w*)\b(.*)" groupNames="firstName,lastName"/>
+  <field column="mailId" splitBy="," sourceColName="emailids"/>
+</entity>
+```
+
+本例中，`regex` 和 `sourceColName` 是由转换器所使用的特定属性。
+该转换器从结果集中读取 `full_name` 字段并将其转换为两个新的目标字段 `firstName` 和 `lastName`。
+尽管查询仅返回一个列 `full_name`，在结果集中 Solr 文档得到了两个额外的"派生"字段 `firstName` 和 `lastName`。
+这些新字段仅在正则表达式匹配时创建。
+
+表中的 `emailids` 字段可能是一个逗号分割的值。
+它最终会生成一或多个 email IDs，且我们假设 `mailId` 在 Solr 中是多值字段。
+
+注意这个转换器既可以将一个字符串根据 splitBy 模式分割为多个分词，
+也可以用 replaceWith 做字符串替换，还可以给一组具有某个模式的分组赋予一系列 `groupNames`。
+它根据上面属性中的 `splitBy`、`replaceWith`以及`groupNames` 来决定具体应该怎么做，
+这三个属性是按照顺序查询的。
+第一个找到的会被响应，其他非相关的属性会被忽略。
+
+### <a name="ScriptTransformer"></a>ScriptTransformer
+
+脚本转换器允许以任何 Java 支持的脚本语言来书写任意的转换函数，
+如 Javascript、JRuby、Jython、Groovy 或 BeanShell。
+Javascript 已经集成进了 Java 7 中，其他语言你需要自己集成。
+
+每个函数接收一个行变量(对应于 Java 的 `Map<String,Object>`，因此允许 get、put、remove 操作)。
+这样你可以修改已有字段的值或者添加新字段。函数的返回值及被返回的对象。
+
+脚本需要作为 DIH 配置文件的顶级元素插入，且会对每一个行调用一次。
+
+下面是一个简单示例：
+
+```xml
+<dataconfig>
+
+  <!-- simple script to generate a new row, converting a temperature from Fahrenheit
+       to Centigrade -->
+  <script><![CDATA[
+    function f2c(row) {
+      var tempf, tempc;
+      tempf = row.get('temp_f');
+      if (tempf != null) {
+        tempc = (tempf - 32.0)*5.0/9.0;
+        row.put('temp_c', temp_c);
+      }
+      return row;
+    }
+  ]]></script>
+  
+  <document>
+    <!-- the function is specified as an entity attribute -->
+    
+    <entity name="e1" pk="id" transformer="script:f2c" query="select * from X">
+      ....
+    </entity>
+  </document>
+</dataConfig>
+```
+
+### <a name="TemplateTransformer"></a>TemplateTransformer
+
+你可以使用模板转换器来构造或修改一个字段值，或许是使用其它字段的值。
+你可以在模板中插入额外的文本。
+
+```xml
+<entity name="en" pk="id" transformer="TemplateTransformer" ...>
+  ...
+  <!-- generate a full address from fields containing the component parts -->
+  <field column="full_address" template="${en.street},${en.city},${en.zip}" />
+</entity>
+```
+
 ## <a name="special-commands"></a>数据导入处理器的特殊命令
+
+你可以通过添加下面列出的任何变量给由任何组件所返回的行上来给 DIH 传递特殊命令：
+
+|变量          |描述                       |
+|-------------|--------------------------|
+|$skipDoc     |Skip the current document; that is, do not add it to Solr. The value can be the string `true|false` .|
+|$skipRow     |Skip the current row. The document will be added with rows from other entities. The value can be the string `true|false`|
+|$docBoost    |Boost the current document. The boost value can be a number or the toString conversion of a number.|
+|$deleteDocById|Delete a document from Solr with this ID. The value has to be the uniqueKey value of the document.|
+|$deleteDocByQuery|Delete documents from Solr using this query. The value must be a Solr Query. |
