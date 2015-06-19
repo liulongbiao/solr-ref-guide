@@ -85,8 +85,8 @@
 | docValues | 若为 true，该字段的值可被放入一个面向列的 [DocValues](../docvalues.md) 结构中 | `true/false` |
 | sortMissingFirst <br/> sortMissingLast | 控制当排序字段不存在时文档的位置。在 Solr 3.5 中，它们对所有的数值字段都适用，包括 Trie 和日期字段 | `true/false` |
 | multiValued | 若为 true，表示单个文档可能包含多个该字段类型的值 | `true/false` |
-| omitNorms | 若为 true，忽略该字段关联的范数(它会对该字段禁用长度规范化和索引时助推，并节省部分内存)。默认对所有的原生(非解析)字段类型为true， 如 int、float、data、bool 和 string。仅有全文字段或需要索引时助推的字段需要范数。 | `true/false` |
-| omitTermFreqAndPositions | 若为 true，在对该字段 posting时，忽略词频、位置和荷载。它对不需要这些信息的字段能起到性能助推的效果。它也能减少索引所需的存储空间。对该字段发出的依赖位置的查询将默默地查不到文档。该属性对所有非文本字段默认为 true | `true/false` |
+| omitNorms | 若为 true，忽略该字段关联的范数(它会对该字段禁用长度规范化和索引时加权，并节省部分内存)。默认对所有的原生(非解析)字段类型为true， 如 int、float、data、bool 和 string。仅有全文字段或需要索引时加权的字段需要范数。 | `true/false` |
+| omitTermFreqAndPositions | 若为 true，在对该字段 posting时，忽略词频、位置和荷载。它对不需要这些信息的字段能起到性能加权的效果。它也能减少索引所需的存储空间。对该字段发出的依赖位置的查询将默默地查不到文档。该属性对所有非文本字段默认为 true | `true/false` |
 | omitPositions | 类似于 `omitTermFreqAndPositions`，但保留了词频信息 | `true/false` |
 | termVectors <br/> termPositions <br/> termOffsets <br/> termPayloads | 这些选项指示 Solr 对每个文档维护完整的词频向量，可选地对这些向量中出现的每个项包含位置、位移和荷载信息。这些可用于加速高亮及其他辅助功能，但需要在索引尺寸上引入一些成本。它们对典型的 Solr 使用是不必需的 | `true/false` |
 | required | 指示 Solr 拒绝任何添加不包含该字段的值的请求。该属性默认为 false | `true/false` |
