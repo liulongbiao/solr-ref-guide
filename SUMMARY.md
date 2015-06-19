@@ -69,7 +69,7 @@
 * [搜索](searching/readme.md)
     * [概览](searching/overview.md)
     * [Velocity搜索UI](searching/ui.md)
-    * [相关性](searching/relevance.md)
+    * [相关度](searching/relevance.md)
     * [查询语法和解析](searching/query_syntax/readme.md)
         * [通用查询参数](searching/query_syntax/common.md)
         * [标准查询解析器](searching/query_syntax/standard.md)

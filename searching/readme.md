@@ -4,7 +4,7 @@
 
 * [Solr 搜索概览](searching/overview.md) : Solr 搜索简介
 * [Velocity搜索UI](searching/ui.md) : 简单的使用 VelocityResponseWriter 的搜索 UI
-* [相关性](searching/relevance.md) : 理解搜索结果相关性的概念信息
+* [相关度](searching/relevance.md) : 理解搜索结果相关度的概念信息
 * [查询语法和解析](searching/query_syntax/readme.md) : 查询语法和解析简明概念。它包含以下子节：
     * [通用查询参数](searching/query_syntax/common.md) : 不管何种查询解析器都通用的一些参数
     * [标准查询解析器](searching/query_syntax/standard.md) : 标准Lucene 查询解析器的详细信息
