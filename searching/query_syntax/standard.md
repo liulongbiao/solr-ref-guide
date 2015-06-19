@@ -214,6 +214,31 @@ jakarta^4 apache
 ```
 
 ## <a name="specify-fields"></a>给标准查询解析器的查询指定字段
+
+Solr 中索引的数据以字段进行组织，字段由 Solr 中的 `schema.xml` 文件所定义。
+搜索可以利用字段来给查询添加精度。例如，你可以搜索仅在特定字段上的词项，如 `title` 字段。
+
+`schema.xml` 文件定义了一个字段作为默认字段。
+若你在查询中没有指定字段， Solr 只会搜索默认字段。
+或者你可以在查询中指定一个不同的字段或字段的组合。
+
+要指定一个字段，书写字段名，后跟一个冒号 ":"，然后跟你要在该字段搜索的词项。
+
+如，假设一个索引包含两个字段 `title` 和 `text`，且 `text` 是默认字段。
+若你希望查找名为 "The Right Way" 的文档，其中包含文本 "don't go this way"，
+你可以在搜索查询中保护以下词项：
+
+```
+title:"The Right Way" AND text:go
+
+title:"Do it right" AND go
+```
+
+因为 `text` 是默认字段，该字段的指示器不是必须的；因此第二个查询忽略了它。
+
+字段名仅对后面直接跟着的词项有效，因此查询 `title:Do it right` 只会在 `title` 字段查找 "Do"，
+而在默认字段(这里是 `text`) 中查找 "it" 和 "right"。
+
 ## <a name="boolean-operators"></a>标准查询解析器支持的布尔操作符
 ## <a name="grouping"></a>分组词项以形成子查询
 ## <a name="difference"></a>Lucene 查询解析其和 Solr 标准查询解析器的不同点
