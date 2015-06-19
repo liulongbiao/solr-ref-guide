@@ -96,6 +96,123 @@ http://localhost:8983/solr/techproducts/select?q=id:SP2514N&fl=id+name
 ```
 
 ## <a name="specify-terms"></a>给标准查询解析器指定词项
+
+对标准查询解析器的查询会被分为词项和操作符。存在两种类型的词项：单词项和短语
+
+* 单词项是单个的词，如 "test" 或 "hello"
+* 短语是一组由双引号括起的单词，如 "hello dolly"
+
+多个词项可以由布尔操作符组合到一起形成更复杂的查询(如下所述)。
+
+> 确保针对查询的分析器解析词项和短语的方式和针对索引的分析器解析词项和短语的方式保持一致很重要；
+> 否则，搜索可能会产生意料之外的结果。
+
+### 词项修饰符
+
+Solr 支持多种词项修饰符来根据具体搜索需求来添加灵活性或精度。
+这些修饰符包括通配符、用于进行“模糊”搜索或更通用的字符，等等。
+本节一下部分详细说明这些操作符。
+
+#### 通配符搜索
+
+Solr 的标准查询解析器支持单个词项中通配单个或多个字符的搜索。
+通配符可应用于单词项，而不能应用于搜索短语。
+
+|通配符搜索类型  |特殊字符| 示例                           |
+|单个字符(匹配单个字符)|? |搜索字符串 `te?t` 能够匹配 `test` 和 `text`  |
+|多个字符(匹配零或多个顺序字符)|* |通配符搜索 `tes*` 能够匹配 `test`、`testing`和 `tester`。<br>你也可以在词项中间使用通配符，如 `te*t`，它能匹配`test`和 `text`。<br>`*est`能匹配 `pest`和 `test`。 |
+
+#### 模糊搜索
+
+Solr 的标准查询解析器支持基于 Levenshtein 距离和编辑距离的模糊搜索。
+模糊搜索能发现类似于特定项但不需要精确匹配的词项。
+要执行模糊搜索，在单词项的末尾使用波浪号 `~`。
+
+如，要搜索类似于 `roam` 的词项，使用模糊搜索：`roam~`。
+这个搜索可以匹配像 `roams`，`foam`和 `foams` 等词项。它也能匹配 `roam` 本身。
+
+默认的距离参数指定了允许的最大的编辑距离，从 0 到 2,默认为 2。 
+如： `roam~1`。它会匹配 `roams` 和 `foam` - 但 `foams` 因为编辑距离为 2 所以不匹配。
+
+> 很多情况下，词干化(将词项缩减为公共的词干)可以产生和模糊搜索和通配符搜索类似的效果。
+
+#### 邻近搜索
+
+A proximity search looks for terms that are within a specific distance from one another.
+
+To perform a proximity search, add the tilde character ~ and a numeric value to the end of a search phrase. For
+example, to search for a "apache" and "jakarta" within 10 words of each other in a document, use the search:
+
+```
+"jakarta apache"~10
+```
+
+The distance referred to here is the number of term movements needed to match the specified phrase. In the
+example above, if "apache" and "jakarta" were 10 spaces apart in a field, but "apache" appeared before "jakarta",
+more than 10 term movements would be required to move the terms together and position "apache" to the right
+of "jakarta" with a space in between.
+
+#### 范围搜索
+
+范围搜索指定了某个字段的值的范围(一个范围具有上限和下限)。
+该查询将匹配那些字段的值处于给定范围中的文档。
+范围查询可以包含或排除上下限。
+排序是按照字典序的，除了数值字段。
+例如，下面的范围查询匹配所有 `mod_date` 字段的值在 `20020101` 和 `20030101` 之间的文档，它是闭区间。
+
+```
+mod_date:[20020101 TO 20030101]
+```
+
+范围查询不限于日期字段或数值字段。你也可以在非日期字段上进行范围查询：
+
+```
+title:{Aida TO Carmen}
+```
+
+它会找到所有标题在 `Aida` 和 `Carmen` 之间的文档，但不包括 Aida` 和 `Carmen`。
+
+查询中的括号决定了其开闭性。
+
+* 方括号 `[]` 表示包含上下限的值的闭区间范围查询
+* 花括号 `{}` 表示匹配上下限之间的值，但不包括上下限的开区间范围查询
+* 你可以混合这两种类型让范围的一端为开，一端为闭。如： `count:{1 TO 10]`
+
+#### 用 `^` 给词项加权
+
+Lucene/Solr 提供了基于匹配的文档中所找到的词项的相关度水平。
+可以在你搜索的某个词项的后面添加脱字符 `^` 后加一个加权因子(一个数字) 来提升该词项的权重。
+权重因子越高，该词项的相关度也越高。
+
+加权可以让你通过给词项加权来控制文档的相关度。如，你搜索 "jakarta apache" 时希望
+词项 "jakarta" 更相关一些，你可以通过在该词项后添加 `^` 及加权因子来提升权重。
+如你可以写：
+
+```
+jakarta^4 apache
+```
+
+这会让词项 "jakarta" 更相关一些。你也可以提升短语的权重，如：
+
+```
+"jakarta apache"^4 "Apache Lucene"
+```
+
+默认权重因子为 1。尽管权重因子必须为正，但它可以小于 1 (如，它可以是 0.2)。
+
+#### 带 `^=` 的常量分数
+
+可以使用 `<query_clause>^=<score>` 来创建常量查询，
+它会将任何匹配该子句的文档设置整个子句的分数为给定的分数。
+这在你仅关心是否匹配某个子句，但不关心像词频(词项在文档中出现的次数)
+或反向文档频率(测量词项在该字段的整个索引中的稀有程度)等其他因子时很有用。
+
+如：
+
+```
+(description:blue OR color:blue)^=1.0 text:shoes
+```
+
 ## <a name="specify-fields"></a>给标准查询解析器的查询指定字段
 ## <a name="boolean-operators"></a>标准查询解析器支持的布尔操作符
 ## <a name="grouping"></a>分组词项以形成子查询
