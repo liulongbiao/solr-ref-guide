@@ -6,13 +6,13 @@ Faceting 让用户能够更容易地浏览搜索结果，收缩到他们在所�
 
 本节包含内容：
 
-* [通用参数](searching/faceting/general.md)
-* [字段-值Faceting参数](searching/faceting/field_value.md)
-* [范围Faceting](searching/faceting/range.md)
-* [日期Faceting参数](searching/faceting/date.md)
-* [枢轴(决策树)Faceting](searching/faceting/pivot.md)
-* [间隔Faceting](searching/faceting/interval.md)
-* [Faceting 本地变量](searching/faceting/local_params.md)
+* [通用参数](./general.md)
+* [字段-值Faceting参数](./field_value.md)
+* [范围Faceting](./range.md)
+* [日期Faceting参数](./date.md)
+* [枢轴(决策树)Faceting](./pivot.md)
+* [间隔Faceting](./interval.md)
+* [Faceting 本地变量](./local_params.md)
 
 ## 相关内容
 
