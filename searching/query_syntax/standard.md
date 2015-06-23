@@ -260,8 +260,118 @@ Lucene 支持 AND, "+", OR, NOT 和 "-" 作为布尔操作符。
 > 注： 标准查询解析器支持所有上表列出的布尔操作符。DisMax 查询解析器仅支持 `+` 和 `-`。
 
 OR 操作符是默认的连接操作符。即当词项间没有布尔操作符时，就使用 OR 操作符。
+OR 操作符链接了两个项，并找到至少匹配其中一项的文档。
+它等价于集合并集。符号 `||` 可用于替代关键词 `OR`。
+
+在 `schema.xml` 中，你可以指定哪个符号可用于替换像 OR 这样的布尔操作符。
+要搜索包含 "jakarta apache" 或只是 "jakarta" 的文档，可以使用查询
+`"jakarta apache" jakarta` 或 `"jakarta apache" OR jakarta`。
+
+### 布尔操作符 `+`
+
+The + symbol (also known as the "required" operator) requires that the term after the + symbol exist somewhere
+in a field in at least one document in order for the query to return a match.
+
+For example, to search for documents that must contain "jakarta" and that may or may not contain "lucene," use
+the following query:
+
+`+jakarta lucene`
+
+> This operator is supported by both the standard query parser and the DisMax query parser.
+
+### 布尔操作符 `AND(&&)`
+
+The AND operator matches documents where both terms exist anywhere in the text of a single document. This is
+equivalent to an intersection using sets. The symbol && can be used in place of the word AND.
+
+To search for documents that contain "jakarta apache" and "Apache Lucene," use either of the following queries:
+
+`"jakarta apache" AND "Apache Lucene"`
+
+`"jakarta apache" && "Apache Lucene"`
+
+### 布尔操作符 `NOT(!)`
+
+The NOT operator excludes documents that contain the term after NOT. This is equivalent to a difference using
+sets. The symbol ! can be used in place of the word NOT.
+
+The following queries search for documents that contain the phrase "jakarta apache" but do not contain the
+phrase "Apache Lucene":
+
+`"jakarta apache" NOT "Apache Lucene"`
+
+`"jakarta apache" ! "Apache Lucene"`
+
+### 布尔操作符 `-`
+
+The - symbol or "prohibit" operator excludes documents that contain the term after the - symbol.
+
+For example, to search for documents that contain "jakarta apache" but not "Apache Lucene," use the following
+query:
+
+`"jakarta apache" -"Apache Lucene"`
+
+### 转码特殊字符
+
+Solr 给以下出现在查询中的字符特殊的意义：
+
+`+ - && || ! ( ) { } [ ] ^ " ~ * ? : /`
+
+要让 Solr 字面地解释任何这种字符，而不是作为特殊字符，可以前缀一个反斜杠 `\` 来转码。
+如要搜索 `(1+1):2` 而不让 Solr 将加号和括号解释为带两个项的子查询，可以转码为：
+
+`\(1\+1\)\:2`
 
 ## <a name="grouping"></a>分组词项以形成子查询
+
+Lucene/Solr 支持使用括号将子句分组以形成子查询。这在你想控制查询的布尔逻辑时非常有用。
+
+以下查询搜索 "jakarta" 或 "apache" 以及 "website":
+
+`(jakarta OR apache) AND website`
+
+它给查询添加了精度，需要 "website" 必需存在，而 "jakarta" 或 "apache" 其中之一存在。
+
+### 在一个字段中分组子句
+
+要给搜索中的单个字段应用两个或两个以上的布尔操作符，需以括号分组这些布尔子句。
+如下面针对 title 字段的搜索需要同时满足单词 "return" 和短语 "pink panther":
+
+`title:(+return +"pink panther")`
+
 ## <a name="difference"></a>Lucene 查询解析其和 Solr 标准查询解析器的不同点
+
+Solr 的标准查询解析器和 Lucene 查询解析器在以下方面有差异:
+
+* 一个 `*` 可用在范围查询的两端作为一个开区间查询
+    * `field:[* TO 100]` 找到所有小于或等于 100 的字段值
+    * `field:[100 TO *]` 找到所有大于或等于 100 的字段值
+    * `field:[* TO *]` 找到所有字段值
+* 纯反查询(所有子句都是禁止子句)是允许的(金作为顶层子句)
+    * `-inStock:false` 找到所有`inStock` 不为 `false` 的字段值
+    * `-field:[* TO *]` 找到所有该 field 没有值的文档
+* 一个到 `FunctionQuery` 语法的钩子。如果函数中包含括号，你需要使用引号来包装该函数，如下例所示：
+    * `_val_:myfield`
+    * `_val_:"recip(rord(myfield),1,2,3)"`
+* 支持使用任何类型的查询解析器作为内嵌子句
+    * `inStock:true OR {!dismax qf='name manu' v='ipod'}`
+* 范围查询 (`[a TO z]"`)、前缀查询(`a*`) 和通配符查询 (`a*b`) 是常量分数的(所有匹配的文档具有相同的分数)。
+其计分因子 TF、IDF、索引权重和“坐标”没有被使用。对匹配的项的数量也没有限制(在旧版本的 Lucene 中有)。
+
+### 指定日期和时间
+
+对使用 `TrieDateField` 类型的查询(通常是范围查询)应该使用 
+[合适的日期语法](../../schema/field_type/date.md):
+
+* `timestamp:[* TO NOW]`
+* `createdate:[1976-03-06T23:59:59.999Z TO *]`
+* `createdate:[1995-12-31T23:59:59.999Z TO 2007-03-06T00:00:00Z]`
+* `pubdate:[NOW-1YEAR/DAY TO NOW/DAY+1DAY]`
+* `createdate:[1976-03-06T23:59:59.999Z TO 1976-03-06T23:59:59.999Z+1YEAR]`
+* `createdate:[1976-03-06T23:59:59.999Z/YEAR TO 1976-03-06T23:59:59.999Z]`
+ 
 ## <a name="related"></a>相关内容
+
+* [查询中的本地变量](./local_params.md)
+* [其他解析器](./other_parsers.md)
 
