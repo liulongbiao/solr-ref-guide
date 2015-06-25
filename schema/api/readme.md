@@ -31,4 +31,7 @@ Schema API 对 Solr 中每个集合(或使用独立 Solr 模式时的 core) 的�
 bin/solr -e cloud -noprompt
 ```
 
-// TODO API details
+* [API入口](./entry.md)
+* [修改模式](./modify.md)
+* [检索模式信息](./retrieve.md)
+* [管理资源数据](./resource.md)
