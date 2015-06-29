@@ -101,7 +101,7 @@
     * [MoreLikeThis](searching/morelikethis.md)
     * [结果分页](searching/pagination.md)
     * [结果分组](searching/grouping.md)
-    * [收缩和展开结果](searching/collapse_and_expand.md)
+    * [折叠和展开结果](searching/collapse_and_expand.md)
     * [结果聚类](searching/clustering.md)
     * [空间搜索](searching/spatial_search.md)
     * [词项组件](searching/terms_component.md)
