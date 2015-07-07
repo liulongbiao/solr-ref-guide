@@ -15,8 +15,16 @@ Solr 原生支持索引 XML、JSON、CSV 格式的文档。
 
 本节内容包括：
 
-* [UpdateRequestHandler 配置](./config.md)
+* [UpdateRequestHandler 配置](#config)
 * [XML 格式索引更新](./xml.md)
 * [JSON 格式索引更新](./json.md)
 * [CSV 格式索引更新](./csv.md)
 * [内嵌子文档](./nested.md)
+
+## <a name="config"><a> UpdateRequestHandler 配置
+
+默认配置文件中已经默认配置了更新请求处理器。
+
+```xml
+<requestHandler name="/update" class="solr.UpdateRequestHandler" />
+```
