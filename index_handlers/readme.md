@@ -6,7 +6,7 @@
 Solr 原生支持索引 XML、JSON、CSV 格式的文档。
 
 推荐的配置和使用请求处理器的方式是通过基于路径的名称将路径映射为请求 URL。
-然而，如果 [RequestDispatcher](../../config/solrconfig/RequestDispatcher.md) 被适当地配置的话，
+然而，如果 [RequestDispatcher](../config/solrconfig/RequestDispatcher.md) 被适当地配置的话，
 请求处理器也可以通过 `qt` (请求类型) 参数来指定。
 可以通过不止一个名字来访问相同的处理器，这在你希望指定不同集合的默认选项时很有用。
 
