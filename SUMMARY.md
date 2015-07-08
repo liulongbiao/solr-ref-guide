@@ -63,7 +63,7 @@
     * [简介](indexing/intro.md)
     * [Post工具](indexing/post.md)
     * [用IndexHandlers上传数据](indexing/index_handlers/readme.md)
-        * [UpdateRequestHandler配置](indexing/index_handlers/config.md)
+        * [UpdateRequestHandler配置](indexing/index_handlers/readme.md#config)
         * [XML格式索引更新](indexing/index_handlers/xml.md)
         * [JSON格式索引更新](indexing/index_handlers/json.md)
         * [CSV格式索引更新](indexing/index_handlers/csv.md)
