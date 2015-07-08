@@ -7,7 +7,7 @@ Solr 内嵌子文档在索引时使用 "Block Join" 来作为一种建模包含�
 在性能上，索引文档之间的关系可能比试图在查询时进行 join 更加高效，
 因为关系已经存储于索引中且不需要重新计算。
 
-内嵌文档可以通过 XML 或 JSON 数据语法(或使用 [SolrJ](../client_api/solrj.md) )来索引。
+内嵌文档可以通过 XML 或 JSON 数据语法(或使用 [SolrJ](../../client_api/solrj.md) )来索引。
 但不管语法如何，你可以包含一个字段来表示父文档为父;
 它可以是任何适合该目的的字段，且它将用作
 [BlockJoinQueryParsers](https://cwiki.apache.org/confluence/display/solr/Other+Parsers#OtherParsers-BlockJoinQueryParsers)

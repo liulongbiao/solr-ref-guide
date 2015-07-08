@@ -146,7 +146,7 @@ JSON 更新格式运行简单的 delete-by-id 。 `delete` 的值可以是待删
 * `f` : 它是一个多值映射参数。必须提供至少一个字段映射。其格式为 `target-field-name:json-path`。 其中 `json-path` 是必需的。
 `target-field-name` 是 Solr 文档字段名，且是可选的。若没有指定，它自动派生自输入的 JSON。
 这里可以使用通配符，可查看以下 [通配符](#wildcards) 相关信息。
-* `mapUniqueKeyOnly` (boolean) :该参数在输入 JSON 中的字段在模式中不存在且 [无模式形式](../schema/schemaless_mode.md)
+* `mapUniqueKeyOnly` (boolean) :该参数在输入 JSON 中的字段在模式中不存在且 [无模式形式](../../schema/schemaless_mode.md)
 没有启用时非常方便。它将索引所有的字段到默认搜索字段 (使用以下 `df` 参数) 中，且仅有 `uniqueKey` 字段被映射到模式中相应字段。
 若输入 JSON 对 `uniqueKey` 字段不具有值，则该文档会生成一个 UUID 值。
 * `df` : 若使用了 `mapUniqueKeyOnly` 参数，更新处理器需要一个数据应该被索引至的字段。
@@ -241,7 +241,7 @@ curl 'http://localhost:8983/solr/my_collection/update/json/docs'\
 
 这里我们简单地命名了字段路径(如 `/exams/test`) 。Solr 将自动尝试将 JSON 输入中该字段的内容添加到索引中具有相同名称的字段。
 
-> 注：若你没有运行在 [无模式形式](../schema/schemaless_mode.md) 下，其中不存在的字段会通过 Solr 对字段类型的猜测动态创建，
+> 注：若你没有运行在 [无模式形式](../../schema/schemaless_mode.md) 下，其中不存在的字段会通过 Solr 对字段类型的猜测动态创建，
 > 这时若索引前对应字段不存在的话文档可能会被拒绝。
 
 ### <a name="wildcards"></a> 通配符

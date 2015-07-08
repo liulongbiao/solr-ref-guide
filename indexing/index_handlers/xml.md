@@ -39,7 +39,7 @@
 |--------|-----------|-----------------------------|
 |`<add>` |commitWithin=*number* |在指定毫秒时间内添加文档 |
 |`<add>` |overwrite=*boolean* |默认为 true。表示是否需要检查唯一键约束来覆盖相同文档的以前版本（如下）|
-|`<doc>` |boost=*float* |默认为 1.0。设置文档的加权值。要学习关于加权的信息，查看 [搜索](../searching/readme.md) |
+|`<doc>` |boost=*float* |默认为 1.0。设置文档的加权值。要学习关于加权的信息，查看 [搜索](../../searching/readme.md) |
 |`<field>` |boost=*float* |默认为 1.0。设置字段的加权值。 |
 
 若文档模式定义了一个唯一键，则默认一个添加文档的 `/update` 操作将覆盖(替换)索引中
@@ -150,7 +150,7 @@ curl http://localhost:8983/solr/my_collection/update?stream.body=%3Ccommit/%3E
 
 `UpdateRequestHandler` 让你可以通过使用 `<tr>` 参数来应用一个
 [XSL 转换](https://en.wikipedia.org/wiki/XSLT) 来索引任意的 XML。
-在 [Config Sets](../config/core/config_sets.md) 的 `conf/xslt` 目录下必须具有一个 XSLT 样式表
+在 [Config Sets](../../config/core/config_sets.md) 的 `conf/xslt` 目录下必须具有一个 XSLT 样式表
 可以将输入的数据转换成期待的  `<add><doc/></add>` 格式，
 并且你需要使用 `tr` 参数来指定对应样式表的名称。
 
